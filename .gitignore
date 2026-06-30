@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+data/
+*.wav
+*.pt
+*.onnx
+results/*.csv
+.DS_Store
