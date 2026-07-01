@@ -16,6 +16,7 @@ from torch.utils.data import DataLoader
 from data import SpeechCommandsSubset, collate, LABELS
 from features import logmel
 from model import TinyKWS, count_params
+from tqdm import tqdm
 
 ROOT = Path(__file__).resolve().parent.parent
 CKPT = ROOT / "checkpoints" / "tinykws.pt"
@@ -33,7 +34,7 @@ def eval_loader(model, loader, dev) -> float:
     return correct / max(tot, 1)
 
 
-def run(epochs: int = 12, batch_size: int = 256, lr: float = 1e-3):
+def run(epochs: int = 25, batch_size: int = 256, lr: float = 1e-3):
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     tr = DataLoader(SpeechCommandsSubset("training"), batch_size=batch_size,
                     shuffle=True, collate_fn=collate, num_workers=2, drop_last=True)
@@ -42,23 +43,28 @@ def run(epochs: int = 12, batch_size: int = 256, lr: float = 1e-3):
     model = TinyKWS(n_classes=len(LABELS)).to(dev)
     print(f"TinyKWS params: {count_params(model):,} | device {dev} | "
           f"train {len(tr.dataset)} val {len(va.dataset)}")
-    opt = torch.optim.Adam(model.parameters(), lr=lr)
+    opt = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
+    sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=epochs)
     lossf = nn.CrossEntropyLoss()
     CKPT.parent.mkdir(exist_ok=True)
     best = 0.0
     for ep in range(1, epochs + 1):
         model.train()
-        for wav, y in tr:
+        bar = tqdm(tr, desc=f"epoch {ep:2d}/{epochs}", leave=False)
+        for wav, y in bar:
             wav, y = wav.to(dev), y.to(dev)
             opt.zero_grad()
             loss = lossf(model(logmel(wav)), y)
             loss.backward()
             opt.step()
+            bar.set_postfix(loss=f"{loss.item():.3f}")
         acc = eval_loader(model, va, dev)
-        print(f"epoch {ep:2d}  val_acc {acc:.3f}")
+        sched.step()
         if acc > best:
             best = acc
             torch.save(model.state_dict(), CKPT)
+        tqdm.write(f"epoch {ep:2d}  val_acc {acc:.3f}"
+                   + ("  *" if acc == best else ""))
     print(f"best val_acc {best:.3f}  saved -> {CKPT}")
 
 
