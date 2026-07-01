@@ -2,7 +2,7 @@
 
 Edge inference is single-clip and usually CPU-bound, so we time batch-1
 forward passes there. Dynamic quantization here targets the Linear head;
-TinyKWS is conv-dominated, so expect a modest speedup and note it honestly:
+TinyKWS is conv-dominated, so expect little to no speedup and note it honestly:
 the real conv-level win comes from static quantization or an exported
 runtime, which is a documented next step, not a claim made here.
 """

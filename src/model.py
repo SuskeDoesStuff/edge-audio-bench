@@ -3,8 +3,8 @@
 A compact CNN over log-mel features, sized to be plausible on constrained
 hardware. The point of this repo is not a novel architecture; it is the
 deployment path: define small, quantise, measure latency, measure accuracy
-under noise. This file holds the model and the quantisation step; training /
-loading on Speech Commands is the active next task (see README roadmap).
+under noise. Training lives in train.py; this file is the model and the
+quantisation step.
 
 Requires torch + torchaudio (see requirements.txt).
 """
@@ -24,7 +24,7 @@ class TinyKWS(nn.Module):
     Output: (batch, n_classes) logits
     """
 
-    def __init__(self, n_classes: int = 12, n_mels: int = 40):
+    def __init__(self, n_classes: int = 10):
         super().__init__()
         self.features = nn.Sequential(
             nn.Conv2d(1, 16, 3, padding=1), nn.BatchNorm2d(16), nn.ReLU(),
@@ -41,10 +41,11 @@ class TinyKWS(nn.Module):
 
 
 def quantize_dynamic(model: "nn.Module") -> "nn.Module":
-    """Post-training dynamic quantization of the linear layers (int8).
+    """Post-training dynamic quantization of the Linear layers (int8).
 
-    The simplest deployment win: shrink the model and speed up inference with
-    no retraining. Benchmark fp32 vs int8 with latency.benchmark to quantify.
+    Note: this only quantizes Linear layers. TinyKWS is conv-dominated, so the
+    effect on latency is negligible (see the README quantization finding); the
+    real lever is static quantization or an exported runtime.
     """
     model.eval()
     return torch.quantization.quantize_dynamic(model, {nn.Linear}, dtype=torch.qint8)

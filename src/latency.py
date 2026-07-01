@@ -50,8 +50,8 @@ def benchmark(fn: Callable[[], object], runs: int = 200, warmup: int = 20) -> La
 
 
 if __name__ == "__main__":
-    # demo against a stand-in workload so the harness is runnable today;
-    # swap in a real model forward pass once model.py is wired.
+    # demo against a stand-in workload so the harness runs standalone;
+    # bench_quant.py drives it against the real model.
     def fake_forward():
         x = np.random.randn(64, 64).astype(np.float32)
         return x @ x.T

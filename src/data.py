@@ -2,8 +2,8 @@
 
 Uses torchaudio's built-in downloader (no scraping, clean license). We keep
 the 10 core command words so the task is a clean N-class keyword spotter;
-"unknown"/"silence" buckets are deliberately left out to keep stage two
-finishable, and can be added later if wanted.
+"unknown"/"silence" buckets are deliberately left out to keep the task a
+clean N-class problem, and can be added later if wanted.
 """
 from __future__ import annotations
 from pathlib import Path
