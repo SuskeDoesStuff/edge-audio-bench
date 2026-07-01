@@ -7,10 +7,12 @@ results/latency.csv (from bench_quant.py) and writes:
 
 Run from the repo root:  python analysis/plot_results.py
 """
+
 from __future__ import annotations
 import csv
 from pathlib import Path
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
@@ -31,8 +33,13 @@ def plot_accuracy() -> None:
 
     fig, ax = plt.subplots(figsize=(7, 4.5))
     ax.plot(snr, acc, "o-", color="#2b6cb0", lw=2.2, ms=7, zorder=3)
-    ax.axhline(1 / N_CLASSES, ls="--", color="#a0aec0", lw=1.3,
-               label=f"chance ({1/N_CLASSES:.2f})")
+    ax.axhline(
+        1 / N_CLASSES,
+        ls="--",
+        color="#a0aec0",
+        lw=1.3,
+        label=f"chance ({1 / N_CLASSES:.2f})",
+    )
 
     ax.invert_xaxis()  # clean (high SNR) on the left, noisier to the right
     ax.set_xlabel("SNR (dB)   \u2190 cleaner      noisier \u2192")
@@ -44,10 +51,14 @@ def plot_accuracy() -> None:
     # annotate the parity point, where speech and noise powers are equal
     if 0.0 in snr:
         i = snr.index(0.0)
-        ax.annotate("0 dB: signal = noise power",
-                    xy=(0, acc[i]), xytext=(-3, acc[i] + 0.22),
-                    fontsize=9, color="#4a5568",
-                    arrowprops=dict(arrowstyle="->", color="#4a5568"))
+        ax.annotate(
+            "0 dB: signal = noise power",
+            xy=(0, acc[i]),
+            xytext=(-3, acc[i] + 0.22),
+            fontsize=9,
+            color="#4a5568",
+            arrowprops=dict(arrowstyle="->", color="#4a5568"),
+        )
     ax.legend(frameon=False, loc="upper right")
     fig.tight_layout()
     fig.savefig(RES / "accuracy_vs_noise.png", dpi=150)

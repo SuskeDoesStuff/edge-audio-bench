@@ -4,9 +4,11 @@ Not a leaderboard run. Trains a few epochs, keeps the best val checkpoint,
 and stops. The point of the repo is the deployment + noise analysis, so this
 exists only to produce a working model to analyse.
 """
+
 from __future__ import annotations
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import torch
@@ -36,13 +38,25 @@ def eval_loader(model, loader, dev) -> float:
 
 def run(epochs: int = 25, batch_size: int = 256, lr: float = 1e-3):
     dev = "cuda" if torch.cuda.is_available() else "cpu"
-    tr = DataLoader(SpeechCommandsSubset("training"), batch_size=batch_size,
-                    shuffle=True, collate_fn=collate, num_workers=2, drop_last=True)
-    va = DataLoader(SpeechCommandsSubset("validation"), batch_size=batch_size,
-                    collate_fn=collate, num_workers=2)
+    tr = DataLoader(
+        SpeechCommandsSubset("training"),
+        batch_size=batch_size,
+        shuffle=True,
+        collate_fn=collate,
+        num_workers=2,
+        drop_last=True,
+    )
+    va = DataLoader(
+        SpeechCommandsSubset("validation"),
+        batch_size=batch_size,
+        collate_fn=collate,
+        num_workers=2,
+    )
     model = TinyKWS(n_classes=len(LABELS)).to(dev)
-    print(f"TinyKWS params: {count_params(model):,} | device {dev} | "
-          f"train {len(tr.dataset)} val {len(va.dataset)}")
+    print(
+        f"TinyKWS params: {count_params(model):,} | device {dev} | "
+        f"train {len(tr.dataset)} val {len(va.dataset)}"
+    )
     opt = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=epochs)
     lossf = nn.CrossEntropyLoss()
@@ -63,8 +77,7 @@ def run(epochs: int = 25, batch_size: int = 256, lr: float = 1e-3):
         if acc > best:
             best = acc
             torch.save(model.state_dict(), CKPT)
-        tqdm.write(f"epoch {ep:2d}  val_acc {acc:.3f}"
-                   + ("  *" if acc == best else ""))
+        tqdm.write(f"epoch {ep:2d}  val_acc {acc:.3f}" + ("  *" if acc == best else ""))
     print(f"best val_acc {best:.3f}  saved -> {CKPT}")
 
 

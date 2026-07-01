@@ -8,6 +8,7 @@ real-time guarantees.
 
 Pure numpy/stdlib so it runs without a model present.
 """
+
 from __future__ import annotations
 import time
 from dataclasses import dataclass
@@ -25,12 +26,16 @@ class LatencyResult:
     n: int
 
     def __str__(self) -> str:
-        return (f"mean {self.mean_ms:.2f} ms | p50 {self.p50_ms:.2f} | "
-                f"p95 {self.p95_ms:.2f} | p99 {self.p99_ms:.2f} | "
-                f"{self.throughput_hz:.1f} infer/s (n={self.n})")
+        return (
+            f"mean {self.mean_ms:.2f} ms | p50 {self.p50_ms:.2f} | "
+            f"p95 {self.p95_ms:.2f} | p99 {self.p99_ms:.2f} | "
+            f"{self.throughput_hz:.1f} infer/s (n={self.n})"
+        )
 
 
-def benchmark(fn: Callable[[], object], runs: int = 200, warmup: int = 20) -> LatencyResult:
+def benchmark(
+    fn: Callable[[], object], runs: int = 200, warmup: int = 20
+) -> LatencyResult:
     """Time `fn` over `runs` calls after `warmup` untimed calls."""
     for _ in range(warmup):
         fn()

@@ -6,6 +6,7 @@ from clean down to heavily corrupted and measure how the model degrades.
 
 Pure numpy, no heavy deps, so this runs anywhere.
 """
+
 from __future__ import annotations
 import numpy as np
 
@@ -15,8 +16,12 @@ def _power(x: np.ndarray) -> float:
     return float(np.mean(x.astype(np.float64) ** 2))
 
 
-def mix_at_snr(signal: np.ndarray, noise: np.ndarray, snr_db: float,
-               rng: np.random.Generator | None = None) -> np.ndarray:
+def mix_at_snr(
+    signal: np.ndarray,
+    noise: np.ndarray,
+    snr_db: float,
+    rng: np.random.Generator | None = None,
+) -> np.ndarray:
     """Add `noise` to `signal` scaled to achieve a target SNR in dB.
 
     SNR_dB = 10 * log10(P_signal / P_noise_scaled), so the scale that
@@ -34,7 +39,7 @@ def mix_at_snr(signal: np.ndarray, noise: np.ndarray, snr_db: float,
     if noise.shape[0] > signal.shape[0]:
         rng = rng or np.random.default_rng()
         start = int(rng.integers(0, noise.shape[0] - signal.shape[0] + 1))
-        noise = noise[start:start + signal.shape[0]]
+        noise = noise[start : start + signal.shape[0]]
 
     p_sig, p_noise = _power(signal), _power(noise)
     if p_noise == 0:

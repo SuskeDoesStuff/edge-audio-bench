@@ -8,6 +8,7 @@ quantisation step.
 
 Requires torch + torchaudio (see requirements.txt).
 """
+
 from __future__ import annotations
 
 try:
@@ -27,11 +28,17 @@ class TinyKWS(nn.Module):
     def __init__(self, n_classes: int = 10):
         super().__init__()
         self.features = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=1), nn.BatchNorm2d(16), nn.ReLU(),
+            nn.Conv2d(1, 16, 3, padding=1),
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
             nn.MaxPool2d(2),
-            nn.Conv2d(16, 32, 3, padding=1), nn.BatchNorm2d(32), nn.ReLU(),
+            nn.Conv2d(16, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
             nn.MaxPool2d(2),
-            nn.Conv2d(32, 32, 3, padding=1), nn.BatchNorm2d(32), nn.ReLU(),
+            nn.Conv2d(32, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
             nn.AdaptiveAvgPool2d(1),
         )
         self.head = nn.Linear(32, n_classes)
