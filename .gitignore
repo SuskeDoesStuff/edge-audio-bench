@@ -6,6 +6,5 @@ data/
 *.wav
 *.pt
 *.onnx
-results/*.csv
 .DS_Store
 patches/

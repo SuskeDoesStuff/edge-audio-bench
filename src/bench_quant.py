@@ -42,6 +42,15 @@ def main():
     print(f"int8 latency : {int8}")
     print(f"speedup      : {fp32.mean_ms / int8.mean_ms:.2f}x (head-only dynamic quant)")
 
+    import csv
+    with open(ROOT / "results" / "latency.csv", "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["variant", "mean_ms", "p50_ms", "p95_ms", "p99_ms", "throughput_hz"])
+        for name, r in [("fp32", fp32), ("int8", int8)]:
+            w.writerow([name, f"{r.mean_ms:.3f}", f"{r.p50_ms:.3f}",
+                        f"{r.p95_ms:.3f}", f"{r.p99_ms:.3f}", f"{r.throughput_hz:.1f}"])
+    print(f"saved -> {ROOT / 'results' / 'latency.csv'}")
+
 
 if __name__ == "__main__":
     main()
