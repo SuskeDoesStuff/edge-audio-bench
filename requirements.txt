@@ -5,3 +5,4 @@ librosa>=0.10
 soundfile>=0.12
 torchcodec>=0.14.0
 tqdm>=4.68.3
+matplotlib>=3.7
